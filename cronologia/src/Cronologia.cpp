@@ -218,7 +218,28 @@ void Cronologia::operator+=(const Cronologia & c){
 
 //Operador <<
 ostream & operator<<(ostream & os, const Cronologia & cron){
-	n=cron.
+	n=cron.getNFechas();
+	for(i=0; i<n; ++i){
+		os << cron.cronol[i];
+		os << '\n';
+	}
+	return os;
+}
+
+
+//Operador >>
+istream & operator>>(istream & is, Cronologia & cron){
+	if (!cron.vacia())
+		cron.resize(0);
+    
+    int num = 0;
+    while(!is.eof()){
+    	FechaHistorica aux;
+    	is >> aux;
+    	cron.insertar(aux);
+	}
+	
+	return is;
 }
 
 
