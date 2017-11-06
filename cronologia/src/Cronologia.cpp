@@ -2,7 +2,6 @@
 #include <cassert>
 #include <cstdlib>
 #include "Cronologia.h"
-#include <string>
 
 using namespace std;
 
@@ -12,25 +11,30 @@ Cronologia::Cronologia(){
   cronol = 0;
 } 
 
+
 //Constructor copia
 Cronologia::Cronologia(const Cronologia & c){
    cronol=c.cronol;
 }
 
+
 //Destructor
 Cronologia::~Cronologia(){
 }
+
 
 //getNfechas()
 int Cronologia::getNfechas() const{
 	return cronol.getOcupados();
 }
 
-//Devuelve el año deuna fecha dada su posoición
+
+//Devuelve el año de una fecha dada su posición
 int Cronologia::getAnio(int pos) const{
 	assert(0<=pos && pos<getNfechas());
-	return cronol[pos].getAnio;
+	return cronol[pos].getAnio();
 }
+
 
 //Operador []
 FechaHistorica & Cronologia::operator[] (int i){
@@ -38,34 +42,33 @@ FechaHistorica & Cronologia::operator[] (int i){
 	return cronol[i];
 }
 
+
 //Operador [] constante
 const FechaHistorica & Cronologia::operator[](int i) const{
 	assert(0<=i && i<getNfechas());
 	return cronol[i];
 }
 
+
 //Comprobar que está vacia
-bool Cronologia::vacia() const{
+bool Cronologia::vacio() const{
 	return cronol.getOcupados() == 0;
 }
 
-//Numero de fechas historicas contenidas PASAR AL H
-int Cronologia::getNFechas() const{
-	return cronol.getOcupados();
-}
 
+//Clear
+void Cronologia::clear(){
+	if (!cronol.vacio())
+		cronol.resize(0);
+}
 
 
 //Buscar la posición de una fecha dado su año
 int Cronologia::buscarAnio(int a) const{
-	int inf=0, sup=cronol.getNhechos()-1;
-	int med=sup/2;
+	int inf=0, sup=cronol.getOcupados()-1, med;
 	bool enc=0;
 	
-	if (inf==sup && cronol[inf].getAnio()==a)	//Caso extremo en el que
-		enc=1;					//solamente hay una fecha
-	
-	while (!enc && inf<sup){
+	while (!enc && inf<=sup){
 		med=(sup+inf)/2;
 		if (cronol[med].getAnio()<a)
 			inf=med+1;
@@ -99,12 +102,11 @@ int Cronologia::buscarHecho(const string & h) const{
 
 
 //Insertar
-void Cronologia::insertar(const FechaHistorica &fech){
-	int a=fech.getAnio();
-	int i=0;
-	while (cronol[i].getAnio()<a && i<cronol.getOcupados())
+void Cronologia::insertar(const FechaHistorica & fech){
+	int a=fech.getAnio(), i=0, nfechas=cronol.getOcupados();
+	while (i<nfechas && cronol[i].getAnio()<a)
 		++i;
-	if (i<cronol.getOcupados() && cronol[i] == a){
+	if (i<nfechas && cronol[i] == a){
 		int nhechos=fech.getNhechos();
 		for (int j=0; j<nhechos; ++j)
 			cronol[i] += fech[j];
@@ -113,12 +115,13 @@ void Cronologia::insertar(const FechaHistorica &fech){
 	}
 }
 
-		
 
 //Eliminar fecha por posición
 void Cronologia::eliminarPorPos(int pos){
+	assert(0<=pos && pos<getNfechas());
 	cronol.eliminar(pos);
 }
+
 
 //Eliminar fecha por anio
 void Cronologia::eliminarPorAnio(int a){
@@ -135,37 +138,16 @@ Cronologia & Cronologia::operator=(const Cronologia & c){
 	return *this;
 }
 
-//Buscar eventos que contengan una cadena y generar una sub-cronología con ellos
-Cronologia Cronologia::buscarEventos(string & h){
-	n = cronol.getOcupados();
-	Cronologia aux;
-	for(i=; i<n; ++i){
-		m = cronol[i].getNhechos();
-		ani = cronol[i].getAnio();
-		for(j=0;j<m;++j)}{
-			FechaHistorica fech(ani);
-			if(strpos(cronol[i][j], h) !== false){
-				fech += cronol[i][j];
-			}
-			if(!fech.vacio()){
-				aux.insertar(fech);
-			}
-		}
-	}
-	return aux;
-}
 
-//ESTE MÉTODO ES EL MISMO QUE buscarEventos, ME GUSTARÍA SUSTITUIRLO
-
-//Buscar eventos que contengan una cadena y generar una sub-cronología con ellos
-Cronologia & Cronologia::crearSubcronologia(string & h, Cronologia & sub) const{
-	n = cronol.getOcupados();		
-	sub.cronol.resize(0);			
-	for(i=0; i<n; ++i){
-		m = cronol[i].getNhechos();
-		ani = cronol[i].getAnio();
-		for(j=0;j<m;++j)}{
-			FechaHistorica fech(ani);
+//Subcronología a partir de una cadena
+void Cronologia::crearSubcronologia(string & h, Cronologia & sub) const{
+	int n = cronol.getOcupados();		
+	sub.clear();		
+	for(int i=0; i<n; ++i){
+		int m = cronol[i].getNhechos();
+		int a = cronol[i].getAnio();
+		FechaHistorica fech(a);
+		for(int j=0; j<m; ++j){
 			if(cronol[i][j].find(h)!=string::npos)
 				fech += cronol[i][j];
 		}
@@ -173,12 +155,31 @@ Cronologia & Cronologia::crearSubcronologia(string & h, Cronologia & sub) const{
 			sub.insertar(fech);
 		}
 	}
-	return sub;
 }
 
+
+//Subcronología a partir de un rango de años
+void Cronologia::crearSubcronologia(int a1, int a2, Cronologia & sub) const{
+	if (a1>a2){
+		int aux=a1;
+		a1=a2;
+		a2=aux;
+	}
+	
+	sub.clear();
+	int pos=0, n=cronol.getOcupados();
+	while (pos<n && getAnio(pos)<a1)
+		++pos;
+	while (pos<n && getAnio(pos)<=a2){
+		sub.insertar((*this)[pos]);
+		++pos;
+	}
+}
+
+
 //Unión
-void Cronologia::union(const & Cronologia c1, const & Cronologia c2){
-	cronol.resize(0);
+void Cronologia::unir(const Cronologia & c1, const Cronologia & c2){
+	clear();
 	int n1=c1.getNfechas(), n2=c2.getNfechas();
 	for (int i=0; i<n1; ++i)
 		insertar(c1[i]);
@@ -186,11 +187,12 @@ void Cronologia::union(const & Cronologia c1, const & Cronologia c2){
 		insertar(c2[i]);
 }
 
+
 //Intersección
-void Cronologia::interseccion(const & Cronologia c1, const & Cronologia c2){
-	cronol.resize(0);
+void Cronologia::intersecar(const Cronologia & c1, const Cronologia & c2){
+	clear();
 	int n1=c1.getNfechas(), n2=c2.getNfechas(), i=0, j=0;
-	while (i==n1 && c1[i].getAnio()<c2[j].getAnio() || j==n2 && c2[j].getAnio()<c1[i].getAnio()){
+	while (i<n1 && j<n2){
 		if (c1[i].getAnio()<c2[j].getAnio())
 			++i;
 		else if (c1[i].getAnio()>c2[j].getAnio())
@@ -199,11 +201,15 @@ void Cronologia::interseccion(const & Cronologia c1, const & Cronologia c2){
 			int m1=c1[i].getNhechos(), m2=c2[j].getNhechos();
 			FechaHistorica aux(c1[i].getAnio());
 			for (int k=0; k<m1; ++k)
-				for (int l=0; l<m1; ++l)
-					if (c1[i][k]==c2[j][l])
+				for (int l=0; l<m2; ++l)
+					if (c1[i][k]==c2[j][l]){
 						aux+=c1[i][k];
-			if (!aux.vacio())
+}
+			if (!aux.vacio()){
 				insertar(aux);
+}
+			++i;
+			++j;
 		}
 	}
 }
@@ -213,56 +219,32 @@ void Cronologia::interseccion(const & Cronologia c1, const & Cronologia c2){
 void Cronologia::operator+=(const Cronologia & c){
 	int n = c.cronol.getOcupados();	
 	for(int i=0; i<n; i++)
-		insertar(c.cronol[i],cronol.getOcupados());	//método insertar del VectorDinamico
+		insertar(c.cronol[i]);
 }
+
 
 //Operador <<
 ostream & operator<<(ostream & os, const Cronologia & cron){
-	n=cron.getNFechas();
-	for(i=0; i<n; ++i){
-		os << cron.cronol[i];
-		os << '\n';
-	}
+	int n=cron.getNfechas();
+	if (0<n)
+		os << cron.cronol[0];
+	
+	for(int i=1; i<n; ++i)
+		os << endl << cron.cronol[i];
+	
 	return os;
 }
 
 
 //Operador >>
 istream & operator>>(istream & is, Cronologia & cron){
-	if (!cron.vacia())
-		cron.resize(0);
-    
-    int num = 0;
-    while(!is.eof()){
-    	FechaHistorica aux;
-    	is >> aux;
-    	cron.insertar(aux);
+	cron.clear();
+	
+	while(is.peek()!=-1){
+		FechaHistorica aux;
+		is >> aux;
+		cron.insertar(aux);
 	}
 	
 	return is;
 }
-
-
-
-
-
-	/*
-	ANTIGUO ALGORITMO DE consultarAnio(), MENOS EFICIENTE
-	(ahora está el de búsqueda binaria, borra este si estás de acuerdo)
-	
-	int pos = -1;
-	int n = cronol.getOcupados();
-	int i=0;
-	bool encontrado = false;
-	while(i<ocupados && encontrado == false){
-		if(cronol[i].anio == fech){
-			encontrado = true;
-		}else{
-			i++;
-		}
-	}
-	if(encontrado == true){
-		pos = i;
-	}
-	return pos;
-	*/

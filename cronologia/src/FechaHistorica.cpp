@@ -63,15 +63,6 @@ int FechaHistorica::buscarHecho(const string & h) const{
 }
 
 
-//Print
-void FechaHistorica::print() const{
-  cout << anio << endl;
-  int n=hechos.getOcupados();
-  for (int i=0 ; i<n ; ++i)
-    cout << hechos[i] << endl;
-}
-
-
 //Operador =
 FechaHistorica & FechaHistorica::operator=(const FechaHistorica & c){
   if (this!=&c){
@@ -149,21 +140,21 @@ ostream & operator<<(ostream & os, const FechaHistorica & fecha){
 istream & operator>>(istream & is, FechaHistorica & fecha){
   if (!fecha.vacio())
     fecha.hechos.resize(0);
-  
   string aux;
-  getline(is, aux, '\n');    //Leo la cadena entera y la guardo en aux1
-	unsigned int pos=aux.find('#');			//Busco la primera ocurrencia de '#' en aux1
+  getline(is, aux, '\n');    //Leo la cadena entera y la guardo en aux
+	//is.get();					//Extraigo el salto de línea
+	unsigned long pos=aux.find('#');			//Busco la primera ocurrencia de '#' en aux
 	
 	if (pos!=string::npos){
-  		int longitud=aux.length();		//Guardo longitud de aux
-		fecha.setAnio(stoi(aux.substr(0,pos-1)));		//Tomo la subcadena que va desde el
+  	int longitud=aux.length();		//Guardo longitud de aux
+		fecha.setAnio(stoi(aux.substr(0,pos)));		//Tomo la subcadena que va desde el
 				//principio de aux hasta el primer '#', la paso a int y la guardo en fecha.anio
 		aux=aux.substr(pos+1,longitud);		//Quito de aux la parte a la izquierda del primer '#'
 		longitud=aux.length();		//Guardo longitud de aux
 		pos=aux.find('#');		//Busco la primera ocurrencia de '#' en aux
-
+		
 		while(pos!=string::npos){
-			fecha+=aux.substr(0,pos-1);		//Tomo la subcadena que va desde el
+			fecha+=aux.substr(0,pos);		//Tomo la subcadena que va desde el
 				//principio de aux hasta el primer '#', la paso a int y la guardo en fecha.hechos
 			aux=aux.substr(pos+1,longitud);		//Quito de aux la parte a la izquierda del primer '#'
 			longitud=aux.length();		//Guardo longitud de aux
