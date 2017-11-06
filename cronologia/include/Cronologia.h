@@ -1,6 +1,6 @@
 /**
   * @file Cronologia.h
-  * @brief Fichero cabecera del TDA cronologia
+  * @brief Fichero cabecera del TDA Cronologia
   *
   */
 
@@ -96,27 +96,32 @@ class Cronologia {
 	/**
 		* @brief Comprueba si no hay ningún hecho guardado
 		*/
-		bool vacia() const;
- 
+		bool vacio() const;
+	
+	/**
+		* @brief Elimina todas las fechas de la cronología si no está vacía
+		*/
+		void clear();
+	
 	/**
 		* @brief Comprueba si un anio ya pertenece al vector cronol
 		* @param a anio a comprobar
 		* @return Devuelve la posición en que se encuentra ese anio (si no está devuelve -1) 
 		*/
-		int buscarAnio(int a);
+		int buscarAnio(int a) const;
  
 	/**
 		* @brief Busca la posición de la fecha a la que pertenece el hecho enunciado
 		* @param h hecho a comprobar
 		* @return Devuelve la posición de la fecha en la que se encuentra ese hecho (si no está devuelve -1) 
 		*/
-		int buscarHecho(const string & h); 
+		int buscarHecho(const string & h) const; 
  
 	/**
 		* @brief Inserta una nueva fecha
 		* @param fech FechaHistorica a insertar
 		*/
-		int insertar(const FechaHistorica &fech); 
+		void insertar(const FechaHistorica & fech); 
 	
 	/**
 		* @brief elimina una fecha de cronol dada su posición
@@ -143,22 +148,39 @@ class Cronologia {
 		* @param sub Cronología en la que se guarda la sub-cronología obtenida
 		* @return Devuelve la sub-cronología obtenida
 		*/ 
-		Cronologia & Cronologia::crearSubcronologia(string & h, Cronologia & sub) const;
+		void crearSubcronologia(string & h, Cronologia & sub) const;
+	
+	/**
+		* @brief Obtiene la sub-cronología de los hechos que ocurrieron entre los
+		*   años dados (ambos incluidos)
+		* @param a1 Primer año que genera el rango
+		* @param a2 Segundo año que genera el rango
+		* @param sub Cronología en la que se guarda la sub-cronología obtenida
+		* @return Devuelve la sub-cronología obtenida
+		*/ 
+		void crearSubcronologia(int a1, int a2, Cronologia & sub) const;
+	
 	
 	/**
 		* @brief Obtiene la unión de dos cronologías
 		* @param c1 Primera cronología a unir
 		* @param c2 Segunda cronología a unir
 		*/ 
-		void union(const & Cronologia c1, const & Cronologia c2);
+		void unir(const Cronologia & c1, const Cronologia & c2);
 
 	/**
 		* @brief Obtiene la intersección de dos cronologías
 		* @param c1 Primera cronología a intersecar
 		* @param c2 Segunda cronología a intersecar
 		*/ 
-		void interseccion(const & Cronologia c1, const & Cronologia c2);
-
+		void intersecar(const Cronologia & c1, const Cronologia & c2);
+	
+	/**
+		* @brief Almacena todas las fechas de una cronologia en la que llama al método
+		* @param c Cronologia cuyas fechas se van a incluir
+		*/ 
+		void operator+=(const Cronologia & c);
+	
 	/**
 		* @brief Salida de una Cronologia a ostream
 		* @param os stream de salida

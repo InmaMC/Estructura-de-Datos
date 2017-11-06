@@ -138,11 +138,6 @@ class FechaHistorica {
     int buscarHecho(const string & h) const;
 
   /**
-    * @brief Imprime una fecha (año, número de hechos y hechos)
-    */
-    void print() const;
-
-  /**
     * @brief Operador de asignación de la clase
     * @param c.anio año en el que ocurrieron los hechos
     * @param c.hechos hechos que ocurrieron en ese año
